@@ -12,7 +12,9 @@ RU:
 Я начну писать эту библиотеку с простого примера из иходников OpenSSL.
 В следующем релизе я изменю этот пимер так, чтобы он компилировалcя в Visual Studio.
 
+
 Version 0.1:
+
 1. Add OpenSSL binaries for Windows
 2. Add Visual Studio Project
 3. Details: http://habrahabr.ru/post/211474/ (in Russian)
