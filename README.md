@@ -19,6 +19,20 @@ Version 0.1:
 2. Add Visual Studio Project
 3. Details: http://habrahabr.ru/post/211474/ (in Russian)
 
+**********************************************************************************
 Version 0.11:
 
+EN:
 Add base support for nonblocking sockets. Details: http://habrahabr.ru/post/211661/ (in Russian)
+
+RU:
+Добавлена базовая поддержка неблокирующих сокетов.
+
+**********************************************************************************
+Version 0.12:
+
+EH:
+Add server functionality: server may work now with requests from any count of clients. Details: http://habrahabr.ru/post/211853/ (in Russian)
+
+RU:
+Добавлена серверная функциональность: сервер теперь может обрабатывать запросы от любого количества клиентов
