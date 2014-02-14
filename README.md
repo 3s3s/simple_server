@@ -18,3 +18,7 @@ Version 0.1:
 1. Add OpenSSL binaries for Windows
 2. Add Visual Studio Project
 3. Details: http://habrahabr.ru/post/211474/ (in Russian)
+
+Version 0.11:
+
+Add base support for nonblocking sockets. Details: http://habrahabr.ru/post/211661/ (in Russian)

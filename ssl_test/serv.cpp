@@ -31,8 +31,24 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#ifndef WIN32
-#define closesocket  close
+#include <vector>
+#include <string>
+#include <sstream>
+
+#ifdef WIN32
+#define SET_NONBLOCK(socket)	\
+	if (true)					\
+	{							\
+		DWORD dw = true;			\
+		ioctlsocket(socket, FIONBIO, &dw);	\
+	}
+#else
+#include <fcntl.h>
+#define SET_NONBLOCK(socket)	\
+	if (fcntl( socket, F_SETFL, fcntl( socket, F_GETFL, 0 ) | O_NONBLOCK ) < 0)	\
+		printf("error in fcntl errno=%i\n", errno);
+#define closesocket(socket)  close(socket)
+#define Sleep(a) usleep(a*1000)
 #endif
 
 
@@ -52,15 +68,12 @@ int main ()
 {
   int err;
   int listen_sd;
-  int sd;
   struct sockaddr_in sa_serv;
   struct sockaddr_in sa_cli;
-  size_t client_len;
   SSL_CTX* ctx;
   SSL*     ssl;
   X509*    client_cert;
   char*    str;
-  char     buf [4096];
   
 #ifdef WIN32
 	WSADATA wsaData;
@@ -103,6 +116,7 @@ int main ()
   /* Prepare TCP socket for receiving connections */
 
   listen_sd = socket (AF_INET, SOCK_STREAM, 0);	  CHK_ERR(listen_sd, "socket");
+  SET_NONBLOCK(listen_sd);
   
   memset (&sa_serv, '\0', sizeof(sa_serv));
   sa_serv.sin_family      = AF_INET;
@@ -116,14 +130,22 @@ int main ()
 	     
   err = listen (listen_sd, 5);                    CHK_ERR(err, "listen");
   
-  client_len = sizeof(sa_cli);
+  size_t client_len = sizeof(sa_cli);
+
+  int sd = -1;
+  while(sd  == -1)
+  {
+	  Sleep(1);
 #ifdef WIN32
 	sd = accept (listen_sd, (struct sockaddr*) &sa_cli, (int *)&client_len);
 #else
 	sd = accept (listen_sd, (struct sockaddr*) &sa_cli, &client_len);
 #endif  
-	CHK_ERR(sd, "accept");
+  }
+  CHK_ERR(sd, "accept");
   closesocket (listen_sd);
+
+  SET_NONBLOCK(sd);
 
   printf ("Connection from %lx, port %x\n",
 	  sa_cli.sin_addr.s_addr, sa_cli.sin_port);
@@ -133,7 +155,17 @@ int main ()
 
   ssl = SSL_new (ctx);                           CHK_NULL(ssl);
   SSL_set_fd (ssl, sd);
-  err = SSL_accept (ssl);                        CHK_SSL(err);
+
+  while(1)
+  {
+	  Sleep(1);
+	  err = SSL_accept (ssl); 
+
+	  const int nCode = SSL_get_error(ssl, err);
+	  if ((nCode != SSL_ERROR_WANT_READ) && (nCode != SSL_ERROR_WANT_WRITE))
+		  break;
+  }
+  CHK_SSL(err);
   
   /* Get the cipher - opt */
   
@@ -164,11 +196,62 @@ int main ()
 
   /* DATA EXCHANGE - Receive message and send reply. */
 
-  err = SSL_read (ssl, buf, sizeof(buf) - 1);                   CHK_SSL(err);
-  buf[err] = '\0';
-  printf ("Got %d chars:'%s'\n", err, buf);
-  
-  err = SSL_write (ssl, "I hear you.", strlen("I hear you."));  CHK_SSL(err);
+  std::vector<unsigned char> vBuffer(4096); //выделяем буфер для входных данных
+  memset(&vBuffer[0], 0, vBuffer.size()); //заполняем буфер нулями
+
+  size_t nCurrentPos = 0;
+  while (nCurrentPos < vBuffer.size()-1)
+  {
+	  err = SSL_read (ssl, &vBuffer[nCurrentPos], vBuffer.size() - nCurrentPos - 1); //читаем в цикле данные от клиента в буфер
+	  if (err > 0)
+	  {
+		  nCurrentPos += err;
+		 
+		  const std::string strInputString((const char *)&vBuffer[0]);
+		  if (strInputString.find("\r\n\r\n") != -1) //Если найден конец http заголовка, то выходим из цикла
+			  break;
+
+		  continue;
+	  }
+	 
+	  const int nCode = SSL_get_error(ssl, err);
+	  if ((nCode != SSL_ERROR_WANT_READ) && (nCode != SSL_ERROR_WANT_WRITE))
+		  break;
+  }
+
+  //Преобразуем буфер в строку для удобства
+  const std::string strInputString((const char *)&vBuffer[0]);
+
+  //Формируем html страницу с ответом сервера
+  const std::string strHTML = 
+	  "<html><body><h2>Hello! Your HTTP headers is:</h2><br><pre>" + 
+	  strInputString.substr(0, strInputString.find("\r\n\r\n")) + 
+	  "</pre></body></html>";
+
+	//Добавляем в начало ответа http заголовок
+ 	std::ostringstream strStream;
+	strStream << 
+		"HTTP/1.1 200 OK\r\n"
+		<< "Content-Type: text/html; charset=utf-8\r\n"
+		<< "Content-Length: " << strHTML.length() << "\r\n" <<
+		"\r\n" <<
+		strHTML.c_str();
+
+	//Цикл для отправки ответа клиенту.
+	nCurrentPos = 0;
+	while(nCurrentPos < strStream.str().length())
+	{
+		err = SSL_write (ssl, strStream.str().c_str(), strStream.str().length());
+		if (err > 0)
+		{
+			nCurrentPos += err;
+			continue;
+		}
+	 
+		const int nCode = SSL_get_error(ssl, err);
+		if ((nCode != SSL_ERROR_WANT_READ) && (nCode != SSL_ERROR_WANT_WRITE))
+			break;
+	}
 
   /* Clean up. */
 
