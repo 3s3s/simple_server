@@ -18,9 +18,15 @@
     <ClCompile Include="serv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="epoll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="epoll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

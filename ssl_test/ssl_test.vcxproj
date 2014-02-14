@@ -49,7 +49,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Kostja\Dropbox\ssl_test\openssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -79,9 +79,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="epoll.cpp" />
     <ClCompile Include="serv.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="epoll.h" />
     <ClInclude Include="server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

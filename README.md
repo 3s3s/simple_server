@@ -36,3 +36,14 @@ Add server functionality: server may work now with requests from any count of cl
 
 RU:
 Добавлена серверная функциональность: сервер теперь может обрабатывать запросы от любого количества клиентов
+
+**********************************************************************************
+Version 0.13:
+
+EH:
+Add "epoll" support for linux and "select" for other platforms. Details: http://habrahabr.ru/post/212101/ (in Russian)
+
+RU:
+Добавлена поддержка "epoll" для linux и "select" для остальных платформ
+
+

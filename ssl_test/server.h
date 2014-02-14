@@ -49,6 +49,11 @@
 #define INVALID_SOCKET	-1
 #endif
 
+#ifdef __linux__
+#include <sys/epoll.h>
+#else
+#include "epoll.h"
+#endif
 
 /* define HOME to be dir for key and cert files... */
 #define HOME "./"
@@ -71,14 +76,22 @@ namespace server
 		SSL_CTX* m_pSSLContext;
 		SSL* m_pSSL;
 
-		explicit CClient(const CClient &client) {} //Ќам не понадобитс€ конструктор копировани€ дл€ клиентов
+		explicit CClient(const CClient &) {} //Ќам не понадобитс€ конструктор копировани€ дл€ клиентов
+	private:
+		//—обыти€ сокета клиента
+		struct epoll_event m_ClientEvent;
 	public:
+		const struct epoll_event GetEvent() const {return m_ClientEvent;}
 		CClient(const SOCKET hSocket) : m_hSocket(hSocket), m_pSSL(NULL), m_pSSLContext(NULL), m_stateCurrent(S_ACCEPTED_TCP)
 		{
 #ifdef WIN32
 			const SSL_METHOD *meth = SSLv23_server_method();
 #else
+#if __GNUC__ <= 4 && __GNUC_MINOR__ <= 4
 			SSL_METHOD *meth = SSLv23_server_method();
+#else
+			const SSL_METHOD *meth = SSLv23_server_method();
+#endif
 #endif
 			m_pSSLContext = SSL_CTX_new (meth);
 			if (!m_pSSLContext)
@@ -91,6 +104,9 @@ namespace server
 
 			if (!SSL_CTX_check_private_key(m_pSSLContext))
 				fprintf(stderr,"Private key does not match the certificate public key\n");
+
+			m_ClientEvent.data.fd = hSocket;
+			m_ClientEvent.events = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLOUT;
 		}
 		~CClient()
 		{
@@ -332,7 +348,7 @@ namespace server
 			if (err > 0)
 			{
 				//≈сли удалось послать все данные, то переходим к следующему состо€нию
-				if (err == m_vSendBuffer.size())
+				if ((size_t)err == m_vSendBuffer.size())
 					return RET_READY;
 
 				//≈сли отослали не все данные, то оставим в буфере только то, что еще не послано
@@ -356,7 +372,14 @@ namespace server
 	{
 		map<SOCKET, shared_ptr<CClient> > m_mapClients; //«десь сервер будет хранить всех клиентов
 
-		explicit CServer(const CServer &server) {} //Ќам не понадобитс€ конструктор копировани€ дл€ сервера
+		explicit CServer(const CServer &) {} //Ќам не понадобитс€ конструктор копировани€ дл€ сервера
+	private:
+		//—обыти€ слушающего сокета
+		struct epoll_event m_ListenEvent;
+		//—обыти€ клиентских сокетов
+		vector<struct epoll_event> m_events;
+		int m_epoll;
+
 	public:
 		CServer()
 		{
@@ -389,33 +412,73 @@ namespace server
 			
 			err = listen (listen_sd, 5);            CHK_ERR(err, "listen");
 
+			m_epoll = epoll_create (1);
+			if (m_epoll == -1)
+			{
+				printf("error: epoll_create\n");
+				return;
+			}
+
+			m_ListenEvent.data.fd = listen_sd;
+			m_ListenEvent.events = EPOLLIN | EPOLLET;
+			epoll_ctl (m_epoll, EPOLL_CTL_ADD, listen_sd, &m_ListenEvent);
+
 			while(true)
 			{
-				Sleep(1);
+				m_events.resize(m_mapClients.size()+1);
+				int n = epoll_wait (m_epoll, &m_events[0], m_events.size(), 5000);
 
-				struct sockaddr_in sa_cli;  
-				size_t client_len = sizeof(sa_cli);
-#ifdef WIN32
-				const SOCKET sd = accept (listen_sd, (struct sockaddr*) &sa_cli, (int *)&client_len);
-#else
-				const SOCKET sd = accept (listen_sd, (struct sockaddr*) &sa_cli, &client_len);
-#endif  
-				Callback(sd);
+				if (n == -1)
+					continue;
+
+				Callback(n);
 			}
 		}
 	private:
-		void Callback(const SOCKET hSocket)
+		void Callback(const int nCount)
 		{
-			if (hSocket != INVALID_SOCKET)
-				m_mapClients[hSocket] = shared_ptr<CClient>(new CClient(hSocket)); //ƒобавл€ем нового клиента
-
-			auto it = m_mapClients.begin();
-			while (it != m_mapClients.end()) //ѕеречисл€ем всех клиентов
+			for (int i = 0; i < nCount; i++)
 			{
-			   if (!it->second->Continue()) //ƒелаем что-нибудь с клиентом
-				  m_mapClients.erase(it++); //≈сли клиент вернул false, то удал€ем клиента
-			   else
-				  it++;
+				SOCKET hSocketIn = m_events[i].data.fd;
+
+				if (m_ListenEvent.data.fd == (int)hSocketIn)
+				{
+					if (!m_events[i].events == EPOLLIN)
+						continue;
+
+					struct sockaddr_in sa_cli;  
+					size_t client_len = sizeof(sa_cli);
+#ifdef WIN32
+					const SOCKET sd = accept (hSocketIn, (struct sockaddr*) &sa_cli, (int *)&client_len);
+#else
+					const SOCKET sd = accept (hSocketIn, (struct sockaddr*) &sa_cli, (socklen_t *)&client_len);
+#endif  
+					if (sd != INVALID_SOCKET)
+					{
+						//ƒобавл€ем нового клиента в класс сервера
+						m_mapClients[sd] = shared_ptr<CClient>(new CClient(sd));
+						
+						auto it = m_mapClients.find(sd);
+						if (it == m_mapClients.end())
+							continue;
+						
+						//ƒобавл€ем нового клиента в epoll
+						struct epoll_event ev = it->second->GetEvent();
+						epoll_ctl (m_epoll, EPOLL_CTL_ADD, it->first, &ev);
+					}					
+					continue;
+				}
+					
+				auto it = m_mapClients.find(hSocketIn); //Ќаходим клиента по сокету
+				if (it == m_mapClients.end())
+					continue;
+
+				if (!it->second->Continue()) //ƒелаем что-нибудь с клиентом
+				{
+					//≈сли клиент вернул false, то удал€ем клиента из epoll и из класса сервера
+					epoll_ctl (m_epoll, EPOLL_CTL_DEL, it->first, NULL);
+					m_mapClients.erase(it);
+				}
 			}
 		}
 	};
