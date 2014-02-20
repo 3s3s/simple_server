@@ -31,7 +31,7 @@ RU:
 **********************************************************************************
 Version 0.12:
 
-EH:
+EN:
 Add server functionality: server may work now with requests from any count of clients. Details: http://habrahabr.ru/post/211853/ (in Russian)
 
 RU:
@@ -40,10 +40,31 @@ RU:
 **********************************************************************************
 Version 0.13:
 
-EH:
+EN:
 Add "epoll" support for linux and "select" for other platforms. Details: http://habrahabr.ru/post/212101/ (in Russian)
 
 RU:
 Добавлена поддержка "epoll" для linux и "select" для остальных платформ
 
+**********************************************************************************
+version 0.14
+
+EN:
+
+Add tcp protocol support
+
+Add "sendfile" function support for linux.
+
+Now server can send files to browser
+
+Details: http://habrahabr.ru/post/213301/ (in Russian)
+
+
+RU:
+
+Добавлена поддержка протокола tcp
+
+Добавлена поддержка функции "sendfile" для linux
+
+Теперь сервер может посылать файлы в браузер
 
