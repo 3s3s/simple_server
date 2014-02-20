@@ -80,10 +80,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="epoll.cpp" />
+    <ClCompile Include="sendfile.cpp" />
     <ClCompile Include="serv.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="epoll.h" />
+    <ClInclude Include="sendfile.h" />
     <ClInclude Include="server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

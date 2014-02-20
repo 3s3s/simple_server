@@ -1,8 +1,6 @@
 #include "server.h"
 
-int main()
-{
-	server::CServer();
-	return 0;
-}
+const server::CServer s(8085, 1111);
+
+int main() {return 0;}
 

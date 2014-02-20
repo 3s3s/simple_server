@@ -1,3 +1,4 @@
+#ifndef __linux__
 #include "epoll.h"
 #include <map>
 #ifndef WIN32
@@ -14,12 +15,12 @@
 
 std::map<int, epoll_event> g_mapSockets;
 
-int epoll_create(int size)
+int epoll_create(int)
 {
 	return 1;
 }
 
-int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
+int epoll_ctl(int, int op, int fd, struct epoll_event *event)
 {
 	switch(op)
 	{
@@ -37,7 +38,7 @@ int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
 	return 0;
 }
 
-int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
+int epoll_wait(int, struct epoll_event *events, int maxevents, int timeout)
 {
 	if ((!events) || (!maxevents))
 		return -1;
@@ -96,3 +97,4 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 
 	return nRetEvents;
 }
+#endif
