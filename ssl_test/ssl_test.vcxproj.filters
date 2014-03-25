@@ -35,5 +35,8 @@
     <ClInclude Include="sendfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="http_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

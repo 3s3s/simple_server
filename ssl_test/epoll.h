@@ -1,6 +1,7 @@
 #ifndef __linux__
 #ifndef _EPOLL_H
 #define _EPOLL_H
+#include <stdint.h>
 
 enum EPOLL_EVENTS
   {
@@ -43,13 +44,13 @@ typedef union epoll_data
     void				*ptr;
     int					fd;
     unsigned int		u32;
-    unsigned __int64    u64;
+    uint64_t		    u64;
 } epoll_data_t;
 
 struct epoll_event
 {
-    unsigned __int64     events;      /* Epoll events */
-    epoll_data_t		 data;        /* User data variable */
+    int64_t				events;      /* Epoll events */
+    epoll_data_t		data;        /* User data variable */
 };
 
 int epoll_create(int size);

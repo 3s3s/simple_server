@@ -1,6 +1,7 @@
-#include "server.h"
+#include "http_server.h"
+using namespace server;
 
-const server::CServer s(8085, 1111);
+CServer<CHttpClient> s(8085, 1111);
 
 int main() {return 0;}
 
