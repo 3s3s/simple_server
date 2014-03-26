@@ -8,9 +8,9 @@ namespace server
 {
 	class CHttpClient
 	{
-		int m_nSendFile;
-		off_t m_nFilePos;
-		unsigned long long m_nFileSize;
+		int m_nSendFile; //дескриптор файла
+		off_t m_nFilePos; //позиция в файле
+		unsigned long long m_nFileSize; //размер файла
 
 		enum STATES	{
 			S_READING_HEADER,
@@ -19,11 +19,11 @@ namespace server
 			S_WRITING_BODY,
 			S_ERROR
 		};
-		STATES m_stateCurrent;
+		STATES m_stateCurrent; //текущее состояние клиента
 		map<string, string> m_mapHeader;
 
-		void SetState(const STATES state) {m_stateCurrent = state;}
-		const bool ParseHeader(const string strHeader)
+		void SetState(const STATES state) {m_stateCurrent = state;} //функция установки состояния
+		const bool ParseHeader(const string strHeader) //парсинг заголовка http запроса
 		{
 			m_mapHeader["Method"] = strHeader.substr(0, strHeader.find(" ") > 0 ? strHeader.find(" ") : 0);
 			if (m_mapHeader["Method"] != "GET") return false;
@@ -34,7 +34,7 @@ namespace server
 			
 			return true;
 		}
-		const MESSAGE OnReadedHeader(const string strHeader, shared_ptr<vector<unsigned char>> pvBuffer)
+		const MESSAGE OnReadHeader(const string strHeader, shared_ptr<vector<unsigned char>> pvBuffer)
 		{
 			cout << "Header readed\n";
 			if (!ParseHeader(strHeader))	m_mapHeader["Path"] = ERROR_PAGE;
@@ -62,7 +62,7 @@ namespace server
 			memcpy(&pvBuffer->at(0), strStream.str().c_str(), strStream.str().length());
 			return PLEASE_WRITE_BUFFER;
 		}
-		explicit CHttpClient(CHttpClient &client) {}
+		explicit CHttpClient(CHttpClient &client);
 	public:
 		CHttpClient() : m_nSendFile(-1), m_nFilePos(0), m_nFileSize(0), m_stateCurrent(S_READING_HEADER) {}
 		~CHttpClient()
@@ -71,7 +71,7 @@ namespace server
 		}
 			
 		const MESSAGE OnAccepted(shared_ptr<vector<unsigned char>> pvBuffer) {return PLEASE_READ;}
-		const MESSAGE OnWrited(shared_ptr<vector<unsigned char>> pvBuffer)
+		const MESSAGE OnWrote(shared_ptr<vector<unsigned char>> pvBuffer)
 		{
 			switch(m_stateCurrent) {
 				case S_WRITING_HEADER:
@@ -86,7 +86,7 @@ namespace server
 					return PLEASE_STOP;
 			}
 		}
-		const MESSAGE OnReaded(shared_ptr<vector<unsigned char>> pvBuffer)
+		const MESSAGE OnRead(shared_ptr<vector<unsigned char>> pvBuffer)
 		{
 			switch(m_stateCurrent) {
 				case S_READING_HEADER:
@@ -96,7 +96,7 @@ namespace server
 					if (strInputString.find("\r\n\r\n") == strInputString.npos)
 						return PLEASE_READ;
 
-					switch(OnReadedHeader(strInputString.substr(0, strInputString.find("\r\n\r\n")+4), pvBuffer)) {
+					switch(OnReadHeader(strInputString.substr(0, strInputString.find("\r\n\r\n")+4), pvBuffer)) {
 						case PLEASE_READ:
 							SetState(S_READING_BODY);
 							return PLEASE_READ;

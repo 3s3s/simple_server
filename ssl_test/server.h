@@ -74,8 +74,8 @@ namespace server
 	enum MESSAGE {
 		I_READY_EPOLL,
 		I_ACCEPTED,
-		I_READED,
-		I_ALL_WRITED,
+		I_READ,
+		I_ALL_WROTE,
 		PLEASE_READ,
 		PLEASE_WRITE_BUFFER,
 		PLEASE_WRITE_FILE,
@@ -101,10 +101,10 @@ namespace server
 				case I_ACCEPTED:
 					mapSocketToClient[hSocket] = shared_ptr<CLIENT>(new CLIENT);
 					return mapSocketToClient[hSocket]->OnAccepted(pvBuffer);
-				case I_READED:
-					return mapSocketToClient[hSocket]->OnReaded(pvBuffer);
-				case I_ALL_WRITED:
-					return mapSocketToClient[hSocket]->OnWrited(pvBuffer);
+				case I_READ:
+					return mapSocketToClient[hSocket]->OnRead(pvBuffer);
+				case I_ALL_WROTE:
+					return mapSocketToClient[hSocket]->OnWrote(pvBuffer);
 				case I_READY_EPOLL: case PLEASE_STOP: case PLEASE_READ: case PLEASE_WRITE_BUFFER: case PLEASE_WRITE_FILE: break;
 			}
 			mapSocketToClient.erase(hSocket);
@@ -130,7 +130,7 @@ namespace server
 			SSL_CTX* m_pSSLContext;
 			SSL* m_pSSL;
 
-			explicit CClient(const CClient &) {} //Нам не понадобится конструктор копирования для клиентов
+			explicit CClient(const CClient &); //Нам не понадобится конструктор копирования для клиентов
 		private:
 			struct epoll_event m_ClientEvent; //События сокета клиента
 		public:
@@ -204,7 +204,7 @@ namespace server
 						m_vSendBuffer.clear();
 						memcpy(&m_nSendFile, &m_pvBuffer->at(0), m_pvBuffer->size());
 						return true;
-					case I_READY_EPOLL: case I_ACCEPTED: case I_READED: case I_ALL_WRITED: case PLEASE_STOP: break;
+					case I_READY_EPOLL: case I_ACCEPTED: case I_READ: case I_ALL_WROTE: case PLEASE_STOP: break;
 				}
 				return false;
 			}
@@ -229,7 +229,7 @@ namespace server
 						switch (ContinueRead())	{
 							case RET_READY:
 								*m_pvBuffer = m_vRecvBuffer;
-								return SendMessage(I_READED, pCurrentEvent);
+								return SendMessage(I_READ, pCurrentEvent);
 							case RET_ERROR: return false;
 							default:		return true;
 						}
@@ -239,7 +239,7 @@ namespace server
 						if (!m_bIsSSL && (RET_ERROR == SendFileTCP(m_nSendFile, &m_nFilePos)))		return false;
 						else if (m_bIsSSL && (RET_ERROR == SendFileSSL(m_nSendFile, &m_nFilePos)))	return false;
 
-						if (IsAllWrited()) return SendMessage(I_ALL_WRITED, pCurrentEvent);
+						if (IsAllWrote()) return SendMessage(I_ALL_WROTE, pCurrentEvent);
 						return true;
 					}
 					default: return false;
@@ -310,7 +310,7 @@ namespace server
 
 				if (err > 0) {
 					//Сохраним прочитанные данные в переменной m_vRecvBuffer
-					m_vRecvBuffer.resize(m_vRecvBuffer.size()+err);
+					m_vRecvBuffer.resize(m_vRecvBuffer.size()+(size_t)err);
 					memcpy(&m_vRecvBuffer[m_vRecvBuffer.size()-err], szBuffer, err);		 
 					return RET_READY;
 				}
@@ -336,12 +336,12 @@ namespace server
 				if (_lseek(nFile, *offset, SEEK_SET) == -1) return RET_ERROR;
 
 				static unsigned char buffer[4096];		
-				return [&, this] (const int nReaded, const unsigned char *pBuffer) {
-					if (nReaded == -1) return RET_ERROR;
-					if (nReaded > 0) {
-						*offset += nReaded;			
-						m_vSendBuffer.resize(nReaded);
-						memcpy(&m_vSendBuffer[0], pBuffer, nReaded);
+				return [&, this] (const int nRead, const unsigned char *pBuffer) {
+					if (nRead == -1) return RET_ERROR;
+					if (nRead > 0) {
+						*offset += nRead;			
+						this->m_vSendBuffer.resize(nRead);
+						memcpy(&this->m_vSendBuffer[0], pBuffer, nRead);
 					}
 					return RET_WAIT;
 				}(_read(nFile, buffer, 4096), buffer);
@@ -354,7 +354,7 @@ namespace server
 				m_nLastSocketError = WSAEWOULDBLOCK;
 				return RET_WAIT;
 			}
-			const bool IsAllWrited() const
+			const bool IsAllWrote() const
 			{
 				if (m_vSendBuffer.size())	return false;
 				if (m_nSendFile == -1)		return true;
@@ -391,8 +391,8 @@ namespace server
 					return RET_WAIT;
 				}
 				return [this, err]() -> RETCODES {
-					if (!m_bIsSSL && ((err == 0) || ((m_nLastSocketError != WSAEWOULDBLOCK) && (m_nLastSocketError != S_OK)))) return RET_ERROR;
-					if (m_bIsSSL && ((err == 0) || ((m_nLastSocketError != SSL_ERROR_WANT_READ) && (m_nLastSocketError != SSL_ERROR_WANT_WRITE)))) return RET_ERROR;				
+					if (!this->m_bIsSSL && ((err == 0) || ((this->m_nLastSocketError != WSAEWOULDBLOCK) && (this->m_nLastSocketError != S_OK)))) return RET_ERROR;
+					if (this->m_bIsSSL && ((err == 0) || ((this->m_nLastSocketError != SSL_ERROR_WANT_READ) && (this->m_nLastSocketError != SSL_ERROR_WANT_WRITE)))) return RET_ERROR;				
 					return RET_WAIT;
 				}();
 			}	 
@@ -401,7 +401,7 @@ namespace server
 		struct epoll_event m_ListenEventTCP, m_ListenEventSSL; //События слушающего сокета
 		vector<struct epoll_event> m_events; //События клиентских сокетов
 
-		explicit CServer(const CServer &) {} //Нам не понадобится конструктор копирования для сервера
+		explicit CServer(const CServer &); //Нам не понадобится конструктор копирования для сервера
 	public:
 		CServer(const uint16_t nPortTCP, const uint16_t nPortSSL)
 		{
@@ -486,6 +486,12 @@ namespace server
 		}
 		void Callback(const int nEpoll, const int nCount)
 		{
+			static time_t tmLast = time(NULL);
+			if (time(NULL) - tmLast > 10)
+			{
+				tmLast = time(NULL);
+				cout << "ClientsCount=" << m_mapClients.size() << "\n";
+			}
 			for (int i = 0; i < nCount; i++) {
 				SOCKET hSocketIn = m_events[i].data.fd;
 				if (m_ListenEventTCP.data.fd == (int)hSocketIn)	{
