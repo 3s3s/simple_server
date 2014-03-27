@@ -1,4 +1,5 @@
 #include "server.h"
+#include <unordered_map>
 
 #define ROOT_PATH		"./wwwroot"
 #define ERROR_PAGE		"error.html"
@@ -20,7 +21,7 @@ namespace server
 			S_ERROR
 		};
 		STATES m_stateCurrent; //текущее состояние клиента
-		map<string, string> m_mapHeader;
+		unordered_map<string, string> m_mapHeader;
 
 		void SetState(const STATES state) {m_stateCurrent = state;} //функция установки состояния
 		const bool ParseHeader(const string strHeader) //парсинг заголовка http запроса
@@ -36,7 +37,7 @@ namespace server
 		}
 		const MESSAGE OnReadHeader(const string strHeader, shared_ptr<vector<unsigned char>> pvBuffer)
 		{
-			cout << "Header readed\n";
+			cout << "Header readed \n" << strHeader;
 			if (!ParseHeader(strHeader))	m_mapHeader["Path"] = ERROR_PAGE;
 			if (m_mapHeader["Path"] == "/") m_mapHeader["Path"] += DEFAULT_PAGE;
 
@@ -67,7 +68,11 @@ namespace server
 		CHttpClient() : m_nSendFile(-1), m_nFilePos(0), m_nFileSize(0), m_stateCurrent(S_READING_HEADER) {}
 		~CHttpClient()
 		{
-			if (m_nSendFile != -1) _close(m_nSendFile);
+			if (m_nSendFile != -1)
+			{
+				cout << "close file " << m_nSendFile << "\n";
+				_close(m_nSendFile);
+			}
 		}
 			
 		const MESSAGE OnAccepted(shared_ptr<vector<unsigned char>> pvBuffer) {return PLEASE_READ;}
@@ -81,6 +86,8 @@ namespace server
 					SetState(S_WRITING_BODY);
 					pvBuffer->resize(sizeof(int));
 					memcpy(&pvBuffer->at(0), &m_nSendFile, pvBuffer->size());
+
+					cout << "send PLEASE_WRITE_FILE m_nSendFile=" << m_nSendFile << "\n";
 					return PLEASE_WRITE_FILE;
 				default:
 					return PLEASE_STOP;
