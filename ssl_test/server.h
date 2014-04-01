@@ -68,6 +68,8 @@ typedef int	socklen_t;
 #define CERTF  "./ca-cert.pem"
 #define KEYF   "./ca-cert.pem"
 
+const time_t g_timeCallbackTimerInterval = 10;
+
 using namespace std;
 namespace server
 {
@@ -76,6 +78,7 @@ namespace server
 		I_ACCEPTED,
 		I_READ,
 		I_ALL_WROTE,
+		I_CALL_TIMER,
 		PLEASE_READ,
 		PLEASE_WRITE_BUFFER,
 		PLEASE_WRITE_FILE,
@@ -86,28 +89,36 @@ namespace server
 	class CServerMessages
 	{
 	public:
-		static MESSAGE MessageProc(SOCKET hSocket, MESSAGE message, shared_ptr<vector<unsigned char>> pvBuffer)
+		static MESSAGE MessageProc(SOCKET hSocket, MESSAGE message, shared_ptr<vector<unsigned char>> pvBuffer = nullptr)
 		{
 			static map<SOCKET, shared_ptr<CLIENT>> mapSocketToClient;
 
 			if (hSocket == INVALID_SOCKET) return message;
+			if (message == I_ACCEPTED)
+			{
+				cout << "I_ACCEPTED socket = " << hSocket << "\n";
+				mapSocketToClient[hSocket] = shared_ptr<CLIENT>(new CLIENT);
+				return mapSocketToClient[hSocket]->OnAccepted(pvBuffer);
+			}
+
+			auto it = mapSocketToClient.find(hSocket);
+			if (it == mapSocketToClient.end()) 
+				return PLEASE_STOP;
 
 			MESSAGE ret = PLEASE_STOP;
 			switch (message) {
-				case I_ACCEPTED:
-					cout << "I_ACCEPTED socket = " << hSocket << "\n";
-					mapSocketToClient[hSocket] = shared_ptr<CLIENT>(new CLIENT);
-					ret = mapSocketToClient[hSocket]->OnAccepted(pvBuffer);
-					break;
 				case I_READ:
 					cout << "I_READ socket = " << hSocket << "\n";
-					ret = mapSocketToClient[hSocket]->OnRead(pvBuffer);
+					ret = it->second->OnRead(pvBuffer);
 					break;
 				case I_ALL_WROTE:
 					cout << "I_ALL_WROTE socket = " << hSocket << "\n";
-					ret = mapSocketToClient[hSocket]->OnWrote(pvBuffer);
+					ret = it->second->OnWrote(pvBuffer);
 					break;
-				case I_READY_EPOLL: case PLEASE_STOP: case PLEASE_READ: case PLEASE_WRITE_BUFFER: case PLEASE_WRITE_FILE: break;
+				case I_CALL_TIMER: 
+					ret = it->second->OnTimer(pvBuffer);
+					break;
+				case I_READY_EPOLL: case PLEASE_STOP: case PLEASE_READ: case PLEASE_WRITE_BUFFER: case PLEASE_WRITE_FILE: case I_ACCEPTED: break;
 			}
 			if (ret == PLEASE_STOP) {
 				cout << "erase socket = " << hSocket << "\n";
@@ -137,26 +148,27 @@ namespace server
 
 			explicit CClient(const CClient &); //Нам не понадобится конструктор копирования для клиентов
 		private:
-			struct epoll_event m_ClientEvent; //События сокета клиента
+			void CleanAndInit()
+			{
+				m_nSendFile = -1;
+				m_nFilePos = 0;
+				m_nLastSocketError = 0;
+				m_stateCurrent = S_ACCEPTED_TCP;
+				m_pvBuffer = shared_ptr<vector<unsigned char>>(new vector<unsigned char>);
+			}
 		public:
-			const struct epoll_event GetEvent() const {return m_ClientEvent;}
 			CClient(const SOCKET hSocket, const bool bIsSSL) : 
-				m_nSendFile(-1), m_nFilePos(0), m_hSocket(hSocket), m_nLastSocketError(0), m_bIsSSL(bIsSSL), m_pSSLContext(NULL), m_pSSL(NULL), m_stateCurrent(S_ACCEPTED_TCP), m_pvBuffer(new vector<unsigned char>) 
+				m_hSocket(hSocket), m_bIsSSL(bIsSSL), m_pSSLContext(NULL), m_pSSL(NULL) 
 			{
 				SET_NONBLOCK(hSocket);
 				if (m_bIsSSL) {
 					m_pSSLContext = SSL_CTX_new (SSLv23_server_method());
-					if (!m_pSSLContext)
-						ERR_print_errors_fp(stderr);
-					if (SSL_CTX_use_certificate_file(m_pSSLContext, CERTF, SSL_FILETYPE_PEM) <= 0)
-						ERR_print_errors_fp(stderr);
-					if (SSL_CTX_use_PrivateKey_file(m_pSSLContext, KEYF, SSL_FILETYPE_PEM) <= 0)
-						ERR_print_errors_fp(stderr);
-					if (!SSL_CTX_check_private_key(m_pSSLContext))
-						fprintf(stderr,"Private key does not match the certificate public key\n");
+					if (!m_pSSLContext)	ERR_print_errors_fp(stderr);
+					if (SSL_CTX_use_certificate_file(m_pSSLContext, CERTF, SSL_FILETYPE_PEM) <= 0)	ERR_print_errors_fp(stderr);
+					if (SSL_CTX_use_PrivateKey_file(m_pSSLContext, KEYF, SSL_FILETYPE_PEM) <= 0)	ERR_print_errors_fp(stderr);
+					if (!SSL_CTX_check_private_key(m_pSSLContext)) cout << "Private key does not match the certificate public key\n";
 				}
-				m_ClientEvent.data.fd = hSocket;
-				m_ClientEvent.events = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLOUT;
+				CleanAndInit();
 			}
 			~CClient()
 			{
@@ -197,6 +209,8 @@ namespace server
 				cout << "SendMessage\n";
 				switch(T::MessageProc(m_hSocket,  message, m_pvBuffer)) {
 					case PLEASE_READ:
+						if (message == I_ALL_WROTE)
+							CleanAndInit();
 						SetState(S_READING, pCurrentEvent);
 						return true;
 					case PLEASE_WRITE_BUFFER:
@@ -211,7 +225,7 @@ namespace server
 						memcpy(&m_nSendFile, &m_pvBuffer->at(0), m_pvBuffer->size());
 						cout << "recv message PLEASE_WRITE_FILE m_nSendFile=" << m_nSendFile << "\n";
 						return true;
-					case I_READY_EPOLL: case I_ACCEPTED: case I_READ: case I_ALL_WROTE: case PLEASE_STOP: break;
+					case I_READY_EPOLL: case I_ACCEPTED: case I_READ: case I_ALL_WROTE: case PLEASE_STOP: case I_CALL_TIMER: break;
 				}
 				cout << "SendMessage return false\n";
 				return false;
@@ -220,15 +234,14 @@ namespace server
 			//Функция для обработки текущего состояния клиента
 			const bool Continue(struct epoll_event *pCurrentEvent)
 			{
-				if (m_hSocket == INVALID_SOCKET) return false;
+				if ((m_hSocket == INVALID_SOCKET) || (EPOLLERR == (pCurrentEvent->events & EPOLLERR))) return false;
 				switch (m_stateCurrent) {
 					case S_ACCEPTED_TCP:
 					{
 						switch (AcceptSSL()) {
-							case RET_READY:
-								if (RET_READY != GetSertificate()) return false;
-								return SendMessage(I_ACCEPTED, pCurrentEvent);
-							case RET_ERROR:	return false;
+							case RET_READY:	return (RET_READY == GetSertificate()) ? SendMessage(I_ACCEPTED, pCurrentEvent) : false;
+							case RET_ERROR:	
+								return false;
 							default:		return true;
 						}
 					}
@@ -238,21 +251,24 @@ namespace server
 							case RET_READY:
 								*m_pvBuffer = m_vRecvBuffer;
 								return SendMessage(I_READ, pCurrentEvent);
-							case RET_ERROR: return false;
+							case RET_ERROR:
+								return false;
 							default:		return true;
 						}
 					}
 					case S_WRITING:
 					{
 						cout << "S_WRITING\n";
-						if (!m_bIsSSL && (RET_ERROR == SendFileTCP(m_nSendFile, &m_nFilePos)))		return false;
-						else if (m_bIsSSL && (RET_ERROR == SendFileSSL(m_nSendFile, &m_nFilePos)))	return false;
+						if (!m_bIsSSL && (RET_ERROR == SendFileTCP(m_nSendFile, &m_nFilePos)))		
+							return false;
+						else if (m_bIsSSL && (RET_ERROR == SendFileSSL(m_nSendFile, &m_nFilePos)))	
+							return false;
 
 						cout << "check IsAllWrote\n";
-						if (IsAllWrote()) return SendMessage(I_ALL_WROTE, pCurrentEvent);
-						return true;
+						return IsAllWrote() ? SendMessage(I_ALL_WROTE, pCurrentEvent) : true;
 					}
-					default: return false;
+					default: 
+						return false;
 				}
 			}
 		private:
@@ -281,7 +297,7 @@ namespace server
 				/* Get client's certificate (note: beware of dynamic allocation) - opt */
 				cout << "SSL connection using " << SSL_get_cipher (m_pSSL) << "\n";
 
-				return [](X509* client_cert) {
+				return [](X509* client_cert) -> RETCODES {
 					if (client_cert != NULL) {
 						cout << "Client certificate:\n";
 						char* str = X509_NAME_oneline (X509_get_subject_name (client_cert), 0, 0);
@@ -321,7 +337,7 @@ namespace server
 				if (err > 0) {
 					//Сохраним прочитанные данные в переменной m_vRecvBuffer
 					m_vRecvBuffer.resize(m_vRecvBuffer.size()+(size_t)err);
-					memcpy(&m_vRecvBuffer[m_vRecvBuffer.size()-err], szBuffer, err);		 
+					move(szBuffer, szBuffer+err, &m_vRecvBuffer[m_vRecvBuffer.size()-err]);		 
 					return RET_READY;
 				}
 			
@@ -346,12 +362,12 @@ namespace server
 				if (_lseek(nFile, *offset, SEEK_SET) == -1) return RET_ERROR;
 
 				static unsigned char buffer[4096];		
-				return [&, this] (const int nRead, const unsigned char *pBuffer) {
+				return [&, this] (const int nRead, const unsigned char *pBuffer) -> RETCODES {
 					if (nRead == -1) return RET_ERROR;
 					if (nRead > 0) {
 						*offset += nRead;			
 						this->m_vSendBuffer.resize(nRead);
-						memcpy(&this->m_vSendBuffer[0], pBuffer, nRead);
+						move(pBuffer, pBuffer+nRead, &this->m_vSendBuffer[0]);
 					}
 					return RET_WAIT;
 				}(_read(nFile, buffer, 4096), buffer);
@@ -367,14 +383,12 @@ namespace server
 			const bool IsAllWrote() const
 			{
 				if (m_vSendBuffer.size())	return false;
-				if (m_nSendFile == -1)		
-					return true;
+				if (m_nSendFile == -1)		return true;
 
 				struct stat stat_buf;
-				if (fstat(m_nSendFile, &stat_buf) == -1)	return true;				
-				if (stat_buf.st_size == m_nFilePos)			return true;
+				if (fstat(m_nSendFile, &stat_buf) == -1)	return true;		
 
-				return false;
+				return (stat_buf.st_size == m_nFilePos)	? true : false;
 			}
 			const RETCODES ContinueWrite()
 			{
@@ -397,7 +411,7 @@ namespace server
 					}
 					//Если отослали не все данные, то оставим в буфере только то, что еще не послано
 					vector<unsigned char> vTemp(m_vSendBuffer.size()-err);
-					memcpy(&vTemp[0], &m_vSendBuffer[err], m_vSendBuffer.size()-err);
+					move(&m_vSendBuffer[err], &m_vSendBuffer[err]+m_vSendBuffer.size()-err, &vTemp[0]);
 					m_vSendBuffer = vTemp;
 					return RET_WAIT;
 				}
@@ -406,9 +420,9 @@ namespace server
 				return RET_WAIT;
 			}	 
 		};
-		map<SOCKET, shared_ptr<CClient> > m_mapClients; //Здесь сервер будет хранить всех клиентов
-		struct epoll_event m_ListenEventTCP, m_ListenEventSSL; //События слушающего сокета
-		vector<struct epoll_event> m_events; //События клиентских сокетов
+		map<SOCKET, shared_ptr<CClient> > m_mapClients;				//Здесь сервер будет хранить всех клиентов
+		struct epoll_event m_ListenEventTCP, m_ListenEventSSL;		//События слушающих сокетов
+		vector<struct epoll_event> m_events;						//События клиентских сокетов
 
 		explicit CServer(const CServer &); //Нам не понадобится конструктор копирования для сервера
 	public:
@@ -441,8 +455,9 @@ namespace server
 			InitListenSocket(nEpoll, nPortSSL, m_ListenEventSSL, socket (AF_INET6, SOCK_STREAM, 0));
 
 			while(PLEASE_STOP != T::MessageProc(INVALID_SOCKET, I_READY_EPOLL, shared_ptr<vector<unsigned char>>(new vector<unsigned char>))) {
+				m_events.clear();
 				m_events.resize(m_mapClients.size()+2);
-				Callback(nEpoll, epoll_wait(nEpoll, &m_events[0], m_events.size(), 5000));
+				Callback(nEpoll, epoll_wait(nEpoll, &m_events[0], m_events.size(), 10));
 			}
 		}
 	private:
@@ -457,9 +472,9 @@ namespace server
 
 			struct sockaddr_in6 sa_serv;
 			memset (&sa_serv, '\0', sizeof(sa_serv));
-			sa_serv.sin6_family     = AF_INET6;
-			sa_serv.sin6_addr		= in6addr_any;
-			sa_serv.sin6_port		= htons (nPort);          /* Server Port number */
+			sa_serv.sin6_family = AF_INET6;
+			sa_serv.sin6_addr	= in6addr_any;
+			sa_serv.sin6_port	= htons (nPort); /* Server Port number */
   
 			if (-1 == ::bind(listen_sd, (struct sockaddr*) &sa_serv, sizeof (sa_serv))) {
 				cout << "bind error = " << errno << "\n";
@@ -481,15 +496,15 @@ namespace server
 			while (INVALID_SOCKET != (sd = accept (hSocketIn, (struct sockaddr*) &sa_cli, (socklen_t *)&client_len))) {
 				//Добавляем нового клиента в класс сервера
 				cout << "Client Accepted\n";
-				if (m_mapClients.find(sd) != m_mapClients.end()) DeleteClient(nEpoll, sd);
-
 				m_mapClients[sd] = shared_ptr<CClient>(new CClient(sd, bIsSSL));
 				
 				auto it = m_mapClients.find(sd);
 				if (it == m_mapClients.end()) return;
 						
 				//Добавляем нового клиента в epoll
-				struct epoll_event ev = it->second->GetEvent();
+				struct epoll_event ev;
+				ev.data.fd = sd;
+				ev.events = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLOUT;
 				epoll_ctl (nEpoll, EPOLL_CTL_ADD, it->first, &ev);
 			}					
 		}
@@ -502,26 +517,32 @@ namespace server
 		void Callback(const int nEpoll, const int nCount)
 		{
 			for (int i = 0; i < nCount; i++) {
-				SOCKET hSocketIn = m_events[i].data.fd;
-				if (m_ListenEventTCP.data.fd == (int)hSocketIn)	{
-					if (m_events[i].events & EPOLLIN)
-						AcceptClient(nEpoll, hSocketIn, false);
+				if (m_events[i].data.fd == m_ListenEventTCP.data.fd)
+				{
+					AcceptClient(nEpoll, m_ListenEventTCP.data.fd, false);
 					continue;
 				}
-				if (m_ListenEventSSL.data.fd == (int)hSocketIn)	{
-					if (m_events[i].events & EPOLLIN)
-						AcceptClient(nEpoll, hSocketIn, true);
+				if (m_events[i].data.fd == m_ListenEventSSL.data.fd)
+				{
+					AcceptClient(nEpoll, m_ListenEventSSL.data.fd, true);
 					continue;
-				}
-				
-				auto it = m_mapClients.find(hSocketIn); //Находим клиента по сокету
-				if (it == m_mapClients.end())
-					continue;
+				}			
+				auto it = m_mapClients.find(m_events[i].data.fd); //Находим клиента по сокету
+				if (it == m_mapClients.end()) continue;
+				if (!it->second->Continue(&m_events[i])) DeleteClient(nEpoll, it->first);
+			}
 
-				if (!it->second->Continue(&m_events[i])) {
-					//Если клиент вернул false, то удаляем клиента из epoll и из класса сервера
-					DeleteClient(nEpoll, it->first);
-				}
+			static time_t tmLastTimerCallback = time(NULL);
+			if (time(NULL) - tmLastTimerCallback < g_timeCallbackTimerInterval) return;
+
+			tmLastTimerCallback = time(NULL);
+
+			auto it = m_mapClients.begin();
+			while (it != m_mapClients.end())
+			{
+				SOCKET hSocket = it->first;
+				it++;
+				if (T::MessageProc(hSocket, I_CALL_TIMER) == PLEASE_STOP) DeleteClient(nEpoll, hSocket);
 			}
 		}
 	};
