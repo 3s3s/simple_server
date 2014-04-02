@@ -1,4 +1,4 @@
-#include "server.h"
+п»ї#include "server.h"
 #include <unordered_map>
 
 #define KEEP_ALIVE	"Connection: Keep-Alive"
@@ -11,9 +11,9 @@ namespace server
 {
 	class CHttpClient
 	{
-		int m_nSendFile; //дескриптор файла
-		off_t m_nFilePos; //позиция в файле
-		unsigned long long m_nFileSize; //размер файла
+		int m_nSendFile; //РґРµСЃРєСЂРёРїС‚РѕСЂ С„Р°Р№Р»Р°
+		off_t m_nFilePos; //РїРѕР·РёС†РёСЏ РІ С„Р°Р№Р»Рµ
+		unsigned long long m_nFileSize; //СЂР°Р·РјРµСЂ С„Р°Р№Р»Р°
 		time_t m_tmLastSocketTime;
 		bool m_bKeepAlive;
 
@@ -24,7 +24,7 @@ namespace server
 			S_WRITING_BODY,
 			S_ERROR
 		};
-		STATES m_stateCurrent; //текущее состояние клиента
+		STATES m_stateCurrent; //С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РєР»РёРµРЅС‚Р°
 		unordered_map<string, string> m_mapHeader;
 
 		void SetState(const STATES state) 
@@ -32,7 +32,7 @@ namespace server
 			m_tmLastSocketTime = time(NULL);
 			m_stateCurrent = state;
 		}
-		const bool ParseHeader(const string strHeader) //парсинг заголовка http запроса
+		const bool ParseHeader(const string strHeader) //РїР°СЂСЃРёРЅРі Р·Р°РіРѕР»РѕРІРєР° http Р·Р°РїСЂРѕСЃР°
 		{
 			m_mapHeader["Method"] = strHeader.substr(0, strHeader.find(" ") > 0 ? strHeader.find(" ") : 0);
 			if (m_mapHeader["Method"] != "GET") return false;
@@ -60,7 +60,7 @@ namespace server
 
 			m_nFileSize = stat_buf.st_size;
 
-			//Добавляем в начало ответа http заголовок
+			//Р”РѕР±Р°РІР»СЏРµРј РІ РЅР°С‡Р°Р»Рѕ РѕС‚РІРµС‚Р° http Р·Р°РіРѕР»РѕРІРѕРє
 			string strResponce = 
 				"HTTP/1.1 200 OK\r\n"
 				"Content-Length: "  + to_string(m_nFileSize) + "\r\n";
@@ -68,7 +68,7 @@ namespace server
 			
 			strResponce += "\r\n";
 
-			//Запоминаем заголовок
+			//Р—Р°РїРѕРјРёРЅР°РµРј Р·Р°РіРѕР»РѕРІРѕРє
 			pvBuffer->resize(strResponce.length());
 			move(strResponce.c_str(), strResponce.c_str()+strResponce.length(), &pvBuffer->at(0));
 			return PLEASE_WRITE_BUFFER;
@@ -121,7 +121,7 @@ namespace server
 			switch(m_stateCurrent) {
 				case S_READING_HEADER:
 				{
-					//Ищем конец http заголовка в прочитанных данных
+					//РС‰РµРј РєРѕРЅРµС† http Р·Р°РіРѕР»РѕРІРєР° РІ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… РґР°РЅРЅС‹С…
 					const std::string strInputString((const char *)&pvBuffer->at(0));
 					if (strInputString.find("\r\n\r\n") == strInputString.npos)
 						return PLEASE_READ;
