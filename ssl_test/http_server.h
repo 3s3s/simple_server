@@ -9,21 +9,6 @@
 
 namespace server
 {
-	class CFile
-	{
-		explicit CFile(CFile &);
-	public:
-		static const int Open(const string strPath)
-		{
-			static unordered_map<string, int> mapPathToDescriptor;
-			
-			auto it = mapPathToDescriptor.find(strPath);
-			if (it != mapPathToDescriptor.end() && it->second != -1) return it->second;
-
-			return mapPathToDescriptor[strPath] = _open(strPath.c_str(), O_RDONLY|O_BINARY);
-		}
-
-	};
 	class CHttpClient
 	{
 		int m_nSendFile; //дескриптор файла
@@ -66,7 +51,7 @@ namespace server
 			if (m_mapHeader["Path"] == "/") m_mapHeader["Path"] += DEFAULT_PAGE;
 
 			cout << "open file" << ROOT_PATH << m_mapHeader["Path"].c_str() << "\n";
-			if ((m_nSendFile = CFile::Open((ROOT_PATH+m_mapHeader["Path"]).c_str())) == -1)
+			if ((m_nSendFile = _open((ROOT_PATH+m_mapHeader["Path"]).c_str(), O_RDONLY|O_BINARY)) == -1)
 				return PLEASE_STOP;
 			
 			struct stat stat_buf;
@@ -91,7 +76,11 @@ namespace server
 		explicit CHttpClient(CHttpClient &client);
 		const MESSAGE CleanAndInit()
 		{
-			m_nSendFile = -1;
+			if (m_nSendFile != -1)
+			{
+				_close(m_nSendFile);
+				m_nSendFile = -1;
+			}
 			m_nFilePos = 0;
 			m_nFileSize = 0;
 			m_stateCurrent = S_READING_HEADER;
@@ -100,7 +89,8 @@ namespace server
 			return PLEASE_READ;
 		}
 	public:
-		CHttpClient() {CleanAndInit();}
+		CHttpClient() : m_nSendFile(-1) {CleanAndInit();}
+		~CHttpClient() {if (m_nSendFile == -1) _close(m_nSendFile);}
 			
 		const MESSAGE OnTimer(shared_ptr<vector<unsigned char>> pvBuffer)
 		{
