@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="vc6curl">
+</Property><Property Name="Solution File" Value="D:\temp\Dropbox\english_simple_server\curl\vc6curl.sln">
+</Property><Property Name="User Options File" Value="D:\temp\Dropbox\english_simple_server\curl\vc6curl.suo">
+</Property><Property Name="Date" Value="29 января 2014 г.">
+</Property><Property Name="Time" Value="21:14">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="vc6curl.sln" Description="File successfully backed up as D:\temp\Dropbox\english_simple_server\curl\Backup\vc6curl.sln">
+</Event><Event ErrorLevel="0" Project="" Source="vc6curl.suo" Description="File successfully backed up as D:\temp\Dropbox\english_simple_server\curl\Backup\vc6curl.suo">
+</Event><Event ErrorLevel="0" Project="" Source="vc6curl.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="vc6curl.sln" Description="Converted">
+</Event></UpgradeLog>

@@ -1,7 +1,6 @@
 ﻿#include "server.h"
+#include "RequestWorker.h"
 #include <unordered_map>
-
-#define KEEP_ALIVE	"Connection: Keep-Alive"
 
 #define ROOT_PATH		"./wwwroot"
 #define ERROR_PAGE		"error.html"
@@ -25,12 +24,42 @@ namespace server
 			S_ERROR
 		};
 		STATES m_stateCurrent; //текущее состояние клиента
-		unordered_map<string, string> m_mapHeader;
+		unordered_map<string, string> m_mapHeader, m_mapVariables;
 
 		void SetState(const STATES state) 
 		{
 			m_tmLastSocketTime = time(NULL);
 			m_stateCurrent = state;
+		}
+
+		void ParseGETVariables()
+		{
+			if (m_mapHeader.find("GET_Query") == m_mapHeader.end())
+				return;
+
+			string strTemp = m_mapHeader["GET_Query"];
+			while(strTemp.length())
+			{
+				string strLeft = "";
+				const int nPos = strTemp.find("&");
+				if (nPos == -1)
+				{
+					strLeft = strTemp;
+					strTemp = "";
+				}
+				else
+				{
+					strLeft = strTemp.substr(0, nPos);
+					string strRight = strTemp.substr(nPos+1);
+					strTemp = strRight;
+				}
+
+				const int nPosEQ = strLeft.find("=");
+				if (nPosEQ == -1)
+					m_mapVariables[strLeft] = "";
+				else
+					m_mapVariables[strLeft.substr(0, nPosEQ)] = strLeft.substr(nPosEQ+1);
+			}
 		}
 		const bool ParseHeader(const string strHeader) //парсинг заголовка http запроса
 		{
@@ -40,6 +69,13 @@ namespace server
 			const int nPathSize = strHeader.find(" ", m_mapHeader["Method"].length()+1)-m_mapHeader["Method"].length()-1;
 			if (nPathSize < 0)	return false;
 			m_mapHeader["Path"] = strHeader.substr(m_mapHeader["Method"].length()+1, nPathSize);
+
+			const int nQueryPos = m_mapHeader["Path"].find("?");
+			if (nQueryPos != -1)
+			{
+				m_mapHeader["GET_Query"] = m_mapHeader["Path"].substr(nQueryPos+1);
+				ParseGETVariables();
+			}
 			
 			m_bKeepAlive = (strHeader.find(KEEP_ALIVE) != strHeader.npos);
 			return true;
@@ -49,6 +85,9 @@ namespace server
 			cout << "Header readed \n" << strHeader;
 			if (!ParseHeader(strHeader))	m_mapHeader["Path"] = ERROR_PAGE;
 			if (m_mapHeader["Path"] == "/") m_mapHeader["Path"] += DEFAULT_PAGE;
+
+			if (m_mapVariables.size())
+				return CRequestWorker::GetResponce(m_bKeepAlive, m_mapHeader, m_mapVariables, pvBuffer);
 
 			cout << "open file" << ROOT_PATH << m_mapHeader["Path"].c_str() << "\n";
 			if ((m_nSendFile = _open((ROOT_PATH+m_mapHeader["Path"]).c_str(), O_RDONLY|O_BINARY)) == -1)
@@ -89,13 +128,21 @@ namespace server
 			return PLEASE_READ;
 		}
 	public:
-		CHttpClient() : m_nSendFile(-1) {CleanAndInit();}
-		~CHttpClient() {if (m_nSendFile == -1) _close(m_nSendFile);}
+		CHttpClient() : m_nSendFile(-1) 
+		{
+			CleanAndInit();
+		}
+		~CHttpClient() 
+		{
+			if (m_nSendFile != -1) _close(m_nSendFile);
+		}
 			
 		const MESSAGE OnTimer(shared_ptr<vector<unsigned char>> pvBuffer)
 		{
+#ifndef _DEBUG
 			if (time(NULL) - m_tmLastSocketTime > 5) 
 				return PLEASE_STOP; //Timeout 5 sec
+#endif
 			return PLEASE_READ;
 		}
 		const MESSAGE OnAccepted(shared_ptr<vector<unsigned char>> pvBuffer) {return PLEASE_READ;}

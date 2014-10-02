@@ -1,0 +1,6 @@
+#define REQ_USER			"user"
+#define REQ_PASSWORD		"password"
+#define REQ_SQL				"sql"
+#define ALLOWED_USER		"test_user"
+#define ALLOWED_PASSWORD	"test_password"
+#define DB_DIRS				"databases"
