@@ -17,6 +17,7 @@ namespace server
 	{
 		sqlite3 *m_pBase;
 		vector<vector<string> > m_Table;
+		string m_strLastError;
 		static sqlite3 *CreateDatabase(const string strName)
 		{
 			_mkdir(DB_DIRS, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -51,11 +52,23 @@ namespace server
 				{
 					vector<vector<string> > *pTable = (vector<vector<string> > *)lParam;
 
+					if (nColumnCount > 100)
+						nColumnCount = 100;
+						
 					vector<string> row;
 					for (int n=0; n<nColumnCount; n++)
-						row.push_back(ppszColTextArray[n]);
+					{
+						string str = "";
+						if (ppszColTextArray[n])
+							str = ppszColTextArray[n];
+							
+						row.push_back(str);
+					}
 
 					pTable->push_back(row);
+					
+					if (pTable->size() > 100)
+						return 1;
 					return 0;
 				}
 			};
@@ -65,6 +78,7 @@ namespace server
 
 			if( rc != SQLITE_OK )
 			{
+				m_strLastError = szErrMsg;
 				sqlite3_free(szErrMsg);
 			}
 		}
@@ -90,6 +104,8 @@ namespace server
 				strRet += strRow;
 			}
 			strRet += "]";
+			if (strRet == "[]" && m_strLastError.length())
+				strRet = m_strLastError;
 			return strRet;
 		}
 	};
@@ -129,30 +145,48 @@ namespace server
 		static bool IsValidRequest(const unordered_map<string, string> &mapVariables)
 		{
 			if ((mapVariables.find(REQ_USER) == mapVariables.end()) || (mapVariables.at(REQ_USER) != ALLOWED_USER))
+			{
+				cout << "!IsValidRequest return1\r\n";
 				return false;
+			}
 			if ((mapVariables.find(REQ_PASSWORD) == mapVariables.end()) || (mapVariables.at(REQ_PASSWORD) != ALLOWED_PASSWORD))
+			{
+				cout << "!IsValidRequest return2\r\n";
 				return false;
+			}
 			if ((mapVariables.find(REQ_SQL) == mapVariables.end()) || (mapVariables.at(REQ_SQL) == ""))
+			{
+				cout << "!IsValidRequest return3\r\n";
 				return false;
+			}
 			return true;
 		}
 	public:
 		static MESSAGE GetResponce(const bool bKeepAlive, const unordered_map<string, string> &mapHeader, const unordered_map<string, string> &mapVariables, shared_ptr<vector<unsigned char>> pvBuffer)
 		{
+			cout << "RequestWirker GetResponce start\r\n";
 			if (!IsValidRequest(mapVariables))
+			{
+				cout << "!IsValidRequest return PLEASE_STOP\r\n";
 				return PLEASE_STOP;
+			}
 
+			cout << "GetResponce continue step1\r\n";
 			string strSQLEncodded = mapVariables.at(REQ_SQL);
 			while (strSQLEncodded.find("+") != -1) replace(strSQLEncodded, "+", "%20");
 
 			const string strSQL = URLDecode(strSQLEncodded);
 			const string strDBName = URLEncode(mapVariables.at(REQ_USER)+mapVariables.at(REQ_PASSWORD)+".db");
 
+			cout << "GetResponce continue step2\r\n";
 			CSQLiteHelper base(strDBName);
+			cout << "GetResponce continue step3 SQL=" << strSQL.c_str() <<"\r\n";
 			base.ExecuteSQL(strSQL);
+			cout << "GetResponce continue step4\r\n";
 
 			string strBody = base.toJSON();
 
+			cout << "GetResponce continue step5\r\n";
 			//Добавляем в начало ответа http заголовок
 			string strResponce = 
 				"HTTP/1.1 200 OK\r\n"
@@ -162,9 +196,11 @@ namespace server
 			
 			strResponce += "\r\n" + strBody;
 
+			cout << "GetResponce continue step6\r\n";
 			//Запоминаем заголовок
 			pvBuffer->resize(strResponce.length());
 			move(strResponce.c_str(), strResponce.c_str()+strResponce.length(), &pvBuffer->at(0));
+			cout << "GetResponce end\r\n";
 			return PLEASE_WRITE_BUFFER;
 		}
 	};

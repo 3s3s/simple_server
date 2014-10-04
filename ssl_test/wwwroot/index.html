@@ -1,13 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
 <meta http_equiv="Content-Type" content="text/html; charset=utf-8"/>
-<title> Стартовая страница </title>
+<title> Тестируем доступ клиента к базе данных на сервере </title>
 </head>
 <body>
-<form  action="index.html" method="get">
-	 User: <input type="text" name="user" value="test_user"><br>
-	 Password: <input type="text" name="password" value="test_password"><br>
-	 SQL: <input type="text" name="sql" value="CREATE TABLE my_test_table (textCol TEXT, intCol INTEGER)"><br>
+<pre>
+Для каждого пользователя на сервере создается SQLite база данных (один файл).
+Пользователь может делать с этой базой что угодно: создавать и удалять таблицы, добавлять данные, делать любые выборки... 
+
+Это тестовая версия. Доступен только один пользователь и соответственно, одна база данных.
+Запросы доступны любые, но чтобы сервер не завис, ограничен максимальный размер выборки 100x100.
+</pre>
+<form  action="https://3s3s.org:8086/index.html" method="get">
+	 User: <input type="text" name="user" value="test_user" readonly><br>
+	 Password: <input type="text" name="password" value="test_password" readonly><br>
+	 SQL: <input type="text" name="sql" size='100' value="CREATE TABLE my_test_table (textCol TEXT, intCol INTEGER)"><br>
+	 <input type="submit" value="Submit">
+</form>
+<br><br><br>
+
+Исходный код полностью открыт и находится по адресу: <a href='https://github.com/3s3s/simple_server'>https://github.com/3s3s/simple_server</a>
+
+<br><br><br>
+Версия без SSL (чтобы браузер на сертификат не ругался)<br>
+<form  action="http://3s3s.org:8085/index.html" method="get">
+	 User: <input type="text" name="user" value="test_user" readonly><br>
+	 Password: <input type="text" name="password" value="test_password" readonly><br>
+	 SQL: <input type="text" name="sql" size='100' value="SELECT * FROM my_test_table"><br>
 	 <input type="submit" value="Submit">
 </form>
 
