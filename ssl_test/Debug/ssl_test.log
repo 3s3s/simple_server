@@ -1,0 +1,9 @@
+﻿Build started 26.04.2016 14:21:18.
+     1>Project "C:\uusr\simple_server-0.15\ssl_test\ssl_test.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         ssl_test.vcxproj -> C:\uusr\simple_server-0.15\Debug\ssl_test.exe
+     1>Done Building Project "C:\uusr\simple_server-0.15\ssl_test\ssl_test.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.03

@@ -1,6 +1,7 @@
-п»ї#include "server.h"
-#include "RequestWorker.h"
+#include "server.h"
 #include <unordered_map>
+
+#define KEEP_ALIVE	"Connection: Keep-Alive"
 
 #define ROOT_PATH		"./wwwroot"
 #define ERROR_PAGE		"error.html"
@@ -8,11 +9,26 @@
 
 namespace server
 {
+	class CFile
+	{
+		explicit CFile(CFile &);
+	public:
+		static const int Open(const string strPath)
+		{
+			static unordered_map<string, int> mapPathToDescriptor;
+			
+			auto it = mapPathToDescriptor.find(strPath);
+			if (it != mapPathToDescriptor.end() && it->second != -1) return it->second;
+
+			return mapPathToDescriptor[strPath] = _open(strPath.c_str(), O_RDONLY|O_BINARY);
+		}
+
+	};
 	class CHttpClient
 	{
-		int m_nSendFile; //РґРµСЃРєСЂРёРїС‚РѕСЂ С„Р°Р№Р»Р°
-		off_t m_nFilePos; //РїРѕР·РёС†РёСЏ РІ С„Р°Р№Р»Рµ
-		unsigned long long m_nFileSize; //СЂР°Р·РјРµСЂ С„Р°Р№Р»Р°
+		int m_nSendFile; //дескриптор файла
+		off_t m_nFilePos; //позиция в файле
+		unsigned long long m_nFileSize; //размер файла
 		time_t m_tmLastSocketTime;
 		bool m_bKeepAlive;
 
@@ -23,45 +39,15 @@ namespace server
 			S_WRITING_BODY,
 			S_ERROR
 		};
-		STATES m_stateCurrent; //С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РєР»РёРµРЅС‚Р°
-		unordered_map<string, string> m_mapHeader, m_mapVariables;
+		STATES m_stateCurrent; //текущее состояние клиента
+		unordered_map<string, string> m_mapHeader;
 
 		void SetState(const STATES state) 
 		{
 			m_tmLastSocketTime = time(NULL);
 			m_stateCurrent = state;
 		}
-
-		void ParseGETVariables()
-		{
-			if (m_mapHeader.find("GET_Query") == m_mapHeader.end())
-				return;
-
-			string strTemp = m_mapHeader["GET_Query"];
-			while(strTemp.length())
-			{
-				string strLeft = "";
-				const int nPos = strTemp.find("&");
-				if (nPos == -1)
-				{
-					strLeft = strTemp;
-					strTemp = "";
-				}
-				else
-				{
-					strLeft = strTemp.substr(0, nPos);
-					string strRight = strTemp.substr(nPos+1);
-					strTemp = strRight;
-				}
-
-				const int nPosEQ = strLeft.find("=");
-				if (nPosEQ == -1)
-					m_mapVariables[strLeft] = "";
-				else
-					m_mapVariables[strLeft.substr(0, nPosEQ)] = strLeft.substr(nPosEQ+1);
-			}
-		}
-		const bool ParseHeader(const string strHeader) //РїР°СЂСЃРёРЅРі Р·Р°РіРѕР»РѕРІРєР° http Р·Р°РїСЂРѕСЃР°
+		const bool ParseHeader(const string strHeader) //парсинг заголовка http запроса
 		{
 			m_mapHeader["Method"] = strHeader.substr(0, strHeader.find(" ") > 0 ? strHeader.find(" ") : 0);
 			if (m_mapHeader["Method"] != "GET") return false;
@@ -69,13 +55,6 @@ namespace server
 			const int nPathSize = strHeader.find(" ", m_mapHeader["Method"].length()+1)-m_mapHeader["Method"].length()-1;
 			if (nPathSize < 0)	return false;
 			m_mapHeader["Path"] = strHeader.substr(m_mapHeader["Method"].length()+1, nPathSize);
-
-			const int nQueryPos = m_mapHeader["Path"].find("?");
-			if (nQueryPos != -1)
-			{
-				m_mapHeader["GET_Query"] = m_mapHeader["Path"].substr(nQueryPos+1);
-				ParseGETVariables();
-			}
 			
 			m_bKeepAlive = (strHeader.find(KEEP_ALIVE) != strHeader.npos);
 			return true;
@@ -86,11 +65,8 @@ namespace server
 			if (!ParseHeader(strHeader))	m_mapHeader["Path"] = ERROR_PAGE;
 			if (m_mapHeader["Path"] == "/") m_mapHeader["Path"] += DEFAULT_PAGE;
 
-			if (m_mapVariables.size())
-				return CRequestWorker::GetResponce(m_bKeepAlive, m_mapHeader, m_mapVariables, pvBuffer);
-
 			cout << "open file" << ROOT_PATH << m_mapHeader["Path"].c_str() << "\n";
-			if ((m_nSendFile = _open((ROOT_PATH+m_mapHeader["Path"]).c_str(), O_RDONLY|O_BINARY)) == -1)
+			if ((m_nSendFile = CFile::Open((ROOT_PATH+m_mapHeader["Path"]).c_str())) == -1)
 				return PLEASE_STOP;
 			
 			struct stat stat_buf;
@@ -99,7 +75,7 @@ namespace server
 
 			m_nFileSize = stat_buf.st_size;
 
-			//Р”РѕР±Р°РІР»СЏРµРј РІ РЅР°С‡Р°Р»Рѕ РѕС‚РІРµС‚Р° http Р·Р°РіРѕР»РѕРІРѕРє
+			//Добавляем в начало ответа http заголовок
 			string strResponce = 
 				"HTTP/1.1 200 OK\r\n"
 				"Content-Length: "  + to_string(m_nFileSize) + "\r\n";
@@ -107,7 +83,7 @@ namespace server
 			
 			strResponce += "\r\n";
 
-			//Р—Р°РїРѕРјРёРЅР°РµРј Р·Р°РіРѕР»РѕРІРѕРє
+			//Запоминаем заголовок
 			pvBuffer->resize(strResponce.length());
 			move(strResponce.c_str(), strResponce.c_str()+strResponce.length(), &pvBuffer->at(0));
 			return PLEASE_WRITE_BUFFER;
@@ -115,11 +91,7 @@ namespace server
 		explicit CHttpClient(CHttpClient &client);
 		const MESSAGE CleanAndInit()
 		{
-			if (m_nSendFile != -1)
-			{
-				_close(m_nSendFile);
-				m_nSendFile = -1;
-			}
+			m_nSendFile = -1;
 			m_nFilePos = 0;
 			m_nFileSize = 0;
 			m_stateCurrent = S_READING_HEADER;
@@ -128,21 +100,12 @@ namespace server
 			return PLEASE_READ;
 		}
 	public:
-		CHttpClient() : m_nSendFile(-1) 
-		{
-			CleanAndInit();
-		}
-		~CHttpClient() 
-		{
-			if (m_nSendFile != -1) _close(m_nSendFile);
-		}
+		CHttpClient() {CleanAndInit();}
 			
 		const MESSAGE OnTimer(shared_ptr<vector<unsigned char>> pvBuffer)
 		{
-#ifndef _DEBUG
 			if (time(NULL) - m_tmLastSocketTime > 5) 
 				return PLEASE_STOP; //Timeout 5 sec
-#endif
 			return PLEASE_READ;
 		}
 		const MESSAGE OnAccepted(shared_ptr<vector<unsigned char>> pvBuffer) {return PLEASE_READ;}
@@ -168,7 +131,7 @@ namespace server
 			switch(m_stateCurrent) {
 				case S_READING_HEADER:
 				{
-					//РС‰РµРј РєРѕРЅРµС† http Р·Р°РіРѕР»РѕРІРєР° РІ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… РґР°РЅРЅС‹С…
+					//Ищем конец http заголовка в прочитанных данных
 					const std::string strInputString((const char *)&pvBuffer->at(0));
 					if (strInputString.find("\r\n\r\n") == strInputString.npos)
 						return PLEASE_READ;

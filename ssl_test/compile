@@ -1,8 +1,0 @@
-#!/bin/sh
-export CC=/opt/centos/devtoolset-1.1/root/usr/bin/gcc
-export CPP=/opt/centos/devtoolset-1.1/root/usr/bin/cpp
-export CXX=/opt/centos/devtoolset-1.1/root/usr/bin/c++
-$CXX -std=c++0x -c serv.cpp
-$CC -c ./sqlite/sqlite3.c
-$CXX -g -L/usr/lib -lssl -lcrypto -lcurl -ldl -lpthread -o serv.exe sqlite3.o serv.o
-rm *.o

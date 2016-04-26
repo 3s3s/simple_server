@@ -23,7 +23,6 @@
 #pragma comment(lib, "ws2_32.lib")
 #endif
 
-
 #include <openssl/rsa.h>       /* SSLeay stuff */
 #include <openssl/crypto.h>
 #include <openssl/x509.h>
@@ -68,8 +67,6 @@ typedef int	socklen_t;
 /* Make these what you want for cert & key files */
 #define CERTF  "./ca-cert.pem"
 #define KEYF   "./ca-cert.pem"
-#define KEEP_ALIVE	"Connection: Keep-Alive"
-
 
 const time_t g_timeCallbackTimerInterval = 10;
 
@@ -87,9 +84,6 @@ namespace server
 		PLEASE_WRITE_FILE,
 		PLEASE_STOP
 	};
-	
-	//Перечисляем коды возврата для функций
-	enum RETCODES {	RET_WAIT, RET_READY, RET_ERROR };
 
 	template<class CLIENT>
 	class CServerMessages
@@ -186,7 +180,7 @@ namespace server
 			//Перечисляем все возможные состояния клиента. При желании можно добавлять новые.
 			enum STATES { S_ACCEPTED_TCP, S_READING, S_WRITING };
 			//Перечисляем коды возврата для функций
-			//enum RETCODES {	RET_WAIT, RET_READY, RET_ERROR };
+			enum RETCODES {	RET_WAIT, RET_READY, RET_ERROR };
 			
 			STATES m_stateCurrent; //Здесь хранится текущее состояние
 
@@ -292,10 +286,7 @@ namespace server
 				const int err = SSL_accept (m_pSSL);
 				if (err == 1) return RET_READY;
 
-				return [](const int nErrCode) 
-					{
-						return (((nErrCode == SSL_ERROR_WANT_READ) || (nErrCode == SSL_ERROR_WANT_WRITE)) ? RET_WAIT : RET_ERROR);
-					}(SSL_get_error(m_pSSL, err));
+				return [](const int nErrCode){return (((nErrCode == SSL_ERROR_WANT_READ) || (nErrCode == SSL_ERROR_WANT_WRITE)) ? RET_WAIT : RET_ERROR);}(SSL_get_error(m_pSSL, err));
 			}
 			const RETCODES GetSertificate()
 			{
@@ -515,8 +506,6 @@ namespace server
 				ev.data.fd = sd;
 				ev.events = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLOUT;
 				epoll_ctl (nEpoll, EPOLL_CTL_ADD, it->first, &ev);
-
-				if (T::MessageProc(sd, I_ACCEPTED) == PLEASE_STOP) DeleteClient(nEpoll, sd);
 			}					
 		}
 		void DeleteClient(const int nEpoll, const SOCKET hSocket)
@@ -540,8 +529,7 @@ namespace server
 				}			
 				auto it = m_mapClients.find(m_events[i].data.fd); //Находим клиента по сокету
 				if (it == m_mapClients.end()) continue;
-				if (!it->second->Continue(&m_events[i])) 
-					DeleteClient(nEpoll, it->first);
+				if (!it->second->Continue(&m_events[i])) DeleteClient(nEpoll, it->first);
 			}
 
 			static time_t tmLastTimerCallback = time(NULL);
