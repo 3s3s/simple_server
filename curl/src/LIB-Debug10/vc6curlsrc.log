@@ -1,104 +1,11 @@
-﻿Build started 02.10.2014 14:53:31.
-     1>Project "C:\Users\Kostja\Dropbox\simple_server-master\curl\src\vc6curlsrc.vcxproj" on node 2 (Rebuild target(s)).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\lib /I..\include /I. /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D CURL_STATICLIB /D _VC80_UPGRADE=0x0600 /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\LIB-Debug/" /Fd".\LIB-Debug/vc110.pdb" /Gd /TC /analyze- /errorReport:prompt hugehelp.c ..\lib\nonblock.c ..\lib\rawstr.c ..\lib\strtoofft.c tool_binmode.c tool_bname.c tool_cb_dbg.c tool_cb_hdr.c tool_cb_prg.c tool_cb_rea.c tool_cb_see.c tool_cb_wrt.c tool_cfgable.c tool_convert.c tool_dirhie.c tool_doswin.c tool_easysrc.c tool_formparse.c tool_getparam.c tool_getpass.c tool_help.c tool_helpers.c tool_homedir.c tool_libinfo.c tool_main.c tool_metalink.c tool_mfiles.c tool_msgs.c tool_operate.c tool_operhlp.c tool_panykey.c tool_paramhlp.c tool_parsecfg.c tool_setopt.c tool_sleep.c tool_urlglob.c tool_util.c tool_vms.c tool_writeenv.c tool_writeout.c tool_xattr.c
-         tool_xattr.c
-         tool_writeout.c
-         tool_writeenv.c
-         tool_vms.c
-         tool_util.c
-         tool_urlglob.c
-         tool_sleep.c
-         tool_setopt.c
-         tool_parsecfg.c
-         tool_paramhlp.c
-         tool_panykey.c
-         tool_operhlp.c
-         tool_operate.c
-         tool_msgs.c
-         tool_mfiles.c
-         tool_metalink.c
-         tool_main.c
-         tool_libinfo.c
-         tool_homedir.c
-         tool_helpers.c
-         Generating Code...
-         Compiling...
-         tool_help.c
-         tool_getpass.c
-         tool_getparam.c
-         tool_formparse.c
-         tool_easysrc.c
-         tool_doswin.c
-         tool_dirhie.c
-         tool_convert.c
-         tool_cfgable.c
-         tool_cb_wrt.c
-         tool_cb_see.c
-         tool_cb_rea.c
-         tool_cb_prg.c
-         tool_cb_hdr.c
-         tool_cb_dbg.c
-         tool_bname.c
-         tool_binmode.c
-         strtoofft.c
-         rawstr.c
-         nonblock.c
-         Generating Code...
-         Compiling...
-         hugehelp.c
-         Generating Code...
-       ResourceCompile:
-         C:\Program Files (x86)\Windows Kits\8.0\bin\x86\rc.exe /D _DEBUG /D _VC80_UPGRADE=0x0600 /l"0x0409" /I..\include /nologo /fo".\LIB-Debug10\curl.res" curl.rc 
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1137,5): warning MSB8012: TargetPath(C:\Users\Kostja\Dropbox\simple_server-master\curl\src\.\LIB-Debug10\curlsrc.exe) does not match the Linker's OutputFile property value (C:\Users\Kostja\Dropbox\simple_server-master\curl\src\LIB-Debug\curl.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+﻿Build started 26.04.2016 13:48:32.
+     1>Project "C:\uusr\simple_server-master\curl\src\vc6curlsrc.vcxproj" on node 3 (Build target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1137,5): warning MSB8012: TargetPath(C:\uusr\simple_server-master\curl\src\.\LIB-Debug10\curlsrc.exe) does not match the Linker's OutputFile property value (C:\uusr\simple_server-master\curl\src\LIB-Debug\curl.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1139,5): warning MSB8012: TargetName(curlsrc) does not match the Linker's OutputFile property value (curl). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"LIB-Debug/curl.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"..\lib\LIB-Debug" libcurld.lib ws2_32.lib wldap32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:".\LIB-Debug/curl.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\LIB-Debug10\curlsrc.lib" /MACHINE:X86 /SAFESEH ".\LIB-Debug10\curl.res"
-         ".\LIB-Debug/hugehelp.obj"
-         ".\LIB-Debug/nonblock.obj"
-         ".\LIB-Debug/rawstr.obj"
-         ".\LIB-Debug/strtoofft.obj"
-         ".\LIB-Debug/tool_binmode.obj"
-         ".\LIB-Debug/tool_bname.obj"
-         ".\LIB-Debug/tool_cb_dbg.obj"
-         ".\LIB-Debug/tool_cb_hdr.obj"
-         ".\LIB-Debug/tool_cb_prg.obj"
-         ".\LIB-Debug/tool_cb_rea.obj"
-         ".\LIB-Debug/tool_cb_see.obj"
-         ".\LIB-Debug/tool_cb_wrt.obj"
-         ".\LIB-Debug/tool_cfgable.obj"
-         ".\LIB-Debug/tool_convert.obj"
-         ".\LIB-Debug/tool_dirhie.obj"
-         ".\LIB-Debug/tool_doswin.obj"
-         ".\LIB-Debug/tool_easysrc.obj"
-         ".\LIB-Debug/tool_formparse.obj"
-         ".\LIB-Debug/tool_getparam.obj"
-         ".\LIB-Debug/tool_getpass.obj"
-         ".\LIB-Debug/tool_help.obj"
-         ".\LIB-Debug/tool_helpers.obj"
-         ".\LIB-Debug/tool_homedir.obj"
-         ".\LIB-Debug/tool_libinfo.obj"
-         ".\LIB-Debug/tool_main.obj"
-         ".\LIB-Debug/tool_metalink.obj"
-         ".\LIB-Debug/tool_mfiles.obj"
-         ".\LIB-Debug/tool_msgs.obj"
-         ".\LIB-Debug/tool_operate.obj"
-         ".\LIB-Debug/tool_operhlp.obj"
-         ".\LIB-Debug/tool_panykey.obj"
-         ".\LIB-Debug/tool_paramhlp.obj"
-         ".\LIB-Debug/tool_parsecfg.obj"
-         ".\LIB-Debug/tool_setopt.obj"
-         ".\LIB-Debug/tool_sleep.obj"
-         ".\LIB-Debug/tool_urlglob.obj"
-         ".\LIB-Debug/tool_util.obj"
-         ".\LIB-Debug/tool_vms.obj"
-         ".\LIB-Debug/tool_writeenv.obj"
-         ".\LIB-Debug/tool_writeout.obj"
-         ".\LIB-Debug/tool_xattr.obj"
-         "C:\Users\Kostja\Dropbox\simple_server-master\curl\lib\LIB-Debug\libcurld.lib"
-     1>LINK : fatal error LNK1207: incompatible PDB format in 'C:\Users\Kostja\Dropbox\simple_server-master\curl\src\LIB-Debug\curl.pdb'; delete and rebuild
-     1>Done Building Project "C:\Users\Kostja\Dropbox\simple_server-master\curl\src\vc6curlsrc.vcxproj" (Rebuild target(s)) -- FAILED.
+     1>Link:
+         vc6curlsrc.vcxproj -> C:\uusr\simple_server-master\curl\src\.\LIB-Debug10\curlsrc.exe
+     1>Done Building Project "C:\uusr\simple_server-master\curl\src\vc6curlsrc.vcxproj" (Build target(s)).
 
-Build FAILED.
+Build succeeded.
 
-Time Elapsed 00:00:09.11
+Time Elapsed 00:00:00.23

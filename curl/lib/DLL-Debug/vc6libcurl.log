@@ -1,0 +1,240 @@
+﻿Build started 25.04.2016 12:03:07.
+     1>Project "C:\uusr\simple_server-master\curl\lib\vc6libcurl.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 2013\VC\bin\CL.exe /c /I. /I..\include /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D BUILDING_LIBCURL /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\DLL-Debug/" /Fd".\DLL-Debug/vc120.pdb" /Gd /TC /analyze- /errorReport:prompt amigaos.c "asyn-ares.c" "asyn-thread.c" axtls.c base64.c bundles.c conncache.c connect.c content_encoding.c cookie.c curl_addrinfo.c curl_darwinssl.c curl_fnmatch.c curl_gethostname.c curl_gssapi.c curl_memrchr.c curl_multibyte.c curl_ntlm.c curl_ntlm_core.c curl_ntlm_msgs.c curl_ntlm_wb.c curl_rand.c curl_rtmp.c curl_sasl.c curl_schannel.c curl_sspi.c curl_threads.c cyassl.c dict.c easy.c escape.c file.c fileinfo.c formdata.c ftp.c ftplistparser.c getenv.c getinfo.c gopher.c gtls.c hash.c hmac.c hostasyn.c hostcheck.c hostip.c hostip4.c hostip6.c hostsyn.c http.c http_chunks.c http_digest.c http_negotiate.c http_negotiate_sspi.c http_proxy.c idn_win32.c if2ip.c imap.c inet_ntop.c inet_pton.c krb4.c krb5.c ldap.c llist.c md4.c md5.c memdebug.c mprintf.c multi.c netrc.c "non-ascii.c" nonblock.c nss.c nwlib.c nwos.c openldap.c parsedate.c pingpong.c polarssl.c pop3.c progress.c qssl.c rawstr.c rtsp.c security.c select.c sendf.c share.c slist.c smtp.c socks.c socks_gssapi.c socks_sspi.c speedcheck.c splay.c ssh.c sslgen.c ssluse.c strdup.c strequal.c strerror.c strtok.c strtoofft.c telnet.c tftp.c timeval.c transfer.c url.c version.c warnless.c wildcard.c
+         wildcard.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         warnless.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         version.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         url.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         transfer.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         timeval.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         tftp.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         telnet.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         strtoofft.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         strtok.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         strerror.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         strequal.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         strdup.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         ssluse.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         sslgen.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         ssh.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         splay.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         speedcheck.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         socks_sspi.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         socks_gssapi.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         Generating Code...
+         Compiling...
+         socks.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         smtp.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         slist.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         share.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         sendf.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         select.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         security.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         rtsp.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         rawstr.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         qssl.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         progress.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         pop3.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         polarssl.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         pingpong.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         parsedate.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         openldap.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         nwos.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         nwlib.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         nss.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         nonblock.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         Generating Code...
+         Compiling...
+         non-ascii.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         netrc.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         multi.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         mprintf.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         memdebug.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         md5.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         md4.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         llist.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         ldap.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         krb5.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         krb4.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         inet_pton.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         inet_ntop.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         imap.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         if2ip.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         idn_win32.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         http_proxy.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         http_negotiate_sspi.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         http_negotiate.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         http_digest.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         Generating Code...
+         Compiling...
+         http_chunks.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         http.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hostsyn.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hostip6.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hostip4.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hostip.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hostcheck.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hostasyn.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hmac.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         hash.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         gtls.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         gopher.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         getinfo.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         getenv.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         ftplistparser.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         ftp.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         formdata.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         fileinfo.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         file.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         escape.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         Generating Code...
+         Compiling...
+         easy.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         dict.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         cyassl.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_threads.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_sspi.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_schannel.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_sasl.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_rtmp.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_rand.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_ntlm_wb.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_ntlm_msgs.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_ntlm_core.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_ntlm.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_multibyte.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_memrchr.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_gssapi.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_gethostname.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_fnmatch.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_darwinssl.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         curl_addrinfo.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         Generating Code...
+         Compiling...
+         cookie.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         content_encoding.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         connect.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         conncache.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         bundles.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         base64.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         axtls.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         asyn-thread.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         asyn-ares.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         amigaos.c
+     1>c:\uusr\simple_server-master\curl\lib\curl_setup.h(125): fatal error C1083: Cannot open include file: 'curl/curlbuild.h': No such file or directory
+         Generating Code...
+     1>Done Building Project "C:\uusr\simple_server-master\curl\lib\vc6libcurl.vcxproj" (Rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:04.78

@@ -1,5 +1,5 @@
-﻿Build started 02.10.2014 14:49:58.
-     1>Project "C:\Users\Kostja\Dropbox\simple_server-master\curl\lib\vc6libcurl.vcxproj" on node 2 (Rebuild target(s)).
+﻿Build started 26.04.2016 13:47:28.
+     1>Project "C:\uusr\simple_server-master\curl\lib\vc6libcurl.vcxproj" on node 2 (Rebuild target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I. /I..\include /I..\..\openssl\include /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D BUILDING_LIBCURL /D CURL_STATICLIB /D USE_SSLEAY /D USE_OPENSSL /D _VC80_UPGRADE=0x0600 /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\LIB-Debug/" /Fd".\LIB-Debug/vc110.pdb" /Gd /TC /analyze- /errorReport:prompt amigaos.c "asyn-ares.c" "asyn-thread.c" axtls.c base64.c bundles.c conncache.c connect.c content_encoding.c cookie.c curl_addrinfo.c curl_darwinssl.c curl_fnmatch.c curl_gethostname.c curl_gssapi.c curl_memrchr.c curl_multibyte.c curl_ntlm.c curl_ntlm_core.c curl_ntlm_msgs.c curl_ntlm_wb.c curl_rand.c curl_rtmp.c curl_sasl.c curl_schannel.c curl_sspi.c curl_threads.c cyassl.c dict.c easy.c escape.c file.c fileinfo.c formdata.c ftp.c ftplistparser.c getenv.c getinfo.c gopher.c gtls.c hash.c hmac.c hostasyn.c hostcheck.c hostip.c hostip4.c hostip6.c hostsyn.c http.c http_chunks.c http_digest.c http_negotiate.c http_negotiate_sspi.c http_proxy.c idn_win32.c if2ip.c imap.c inet_ntop.c inet_pton.c krb4.c krb5.c ldap.c llist.c md4.c md5.c memdebug.c mprintf.c multi.c netrc.c "non-ascii.c" nonblock.c nss.c nwlib.c nwos.c openldap.c parsedate.c pingpong.c polarssl.c pop3.c progress.c qssl.c rawstr.c rtsp.c security.c select.c sendf.c share.c slist.c smtp.c socks.c socks_gssapi.c socks_sspi.c speedcheck.c splay.c ssh.c sslgen.c ssluse.c strdup.c strequal.c strerror.c strtok.c strtoofft.c telnet.c tftp.c timeval.c transfer.c url.c version.c warnless.c wildcard.c
          wildcard.c
@@ -125,7 +125,7 @@
          Generating Code...
        ResourceCompile:
          C:\Program Files (x86)\Windows Kits\8.0\bin\x86\rc.exe /D _DEBUG /D _VC80_UPGRADE=0x0600 /l"0x0409" /nologo /fo".\LIB-Debug10\libcurl.res" libcurl.rc 
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1299,5): warning MSB8012: TargetPath(C:\Users\Kostja\Dropbox\simple_server-master\curl\lib\.\LIB-Debug10\libcurl.lib) does not match the Library's OutputFile property value (C:\Users\Kostja\Dropbox\simple_server-master\curl\lib\LIB-Debug\libcurld.lib). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Lib.OutputFile).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1299,5): warning MSB8012: TargetPath(C:\uusr\simple_server-master\curl\lib\.\LIB-Debug10\libcurl.lib) does not match the Library's OutputFile property value (C:\uusr\simple_server-master\curl\lib\LIB-Debug\libcurld.lib). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Lib.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1301,5): warning MSB8012: TargetName(libcurl) does not match the Library's OutputFile property value (libcurld). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Lib.OutputFile).
        Lib:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\Lib.exe /OUT:"LIB-Debug/libcurld.lib" libeay32.lib ssleay32.lib /LIBPATH:..\..\openssl\lib /NOLOGO ".\LIB-Debug10\libcurl.res"
@@ -245,9 +245,9 @@
      1>libeay32.lib(ecp_nistp256.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
      1>libeay32.lib(ecp_nistp521.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
      1>libeay32.lib(ecp_nistputil.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
-         vc6libcurl.vcxproj -> C:\Users\Kostja\Dropbox\simple_server-master\curl\lib\.\LIB-Debug10\libcurl.lib
-     1>Done Building Project "C:\Users\Kostja\Dropbox\simple_server-master\curl\lib\vc6libcurl.vcxproj" (Rebuild target(s)).
+         vc6libcurl.vcxproj -> C:\uusr\simple_server-master\curl\lib\.\LIB-Debug10\libcurl.lib
+     1>Done Building Project "C:\uusr\simple_server-master\curl\lib\vc6libcurl.vcxproj" (Rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:26.35
+Time Elapsed 00:00:42.56
